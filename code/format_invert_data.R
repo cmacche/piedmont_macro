@@ -51,3 +51,42 @@ df_table <- df_invert %>%
             p_na_family = round(n_na_family / n, 2),
             p_na_latin = round(n_na_latin / n, 2))
 
+
+# example, for loop application -------------------------------------------
+
+# iris example, redundant codes
+
+df1 <- iris %>% filter(Species == "setosa")
+df2 <- iris %>% filter(Species == "versicolor")
+df3 <- iris %>% filter(Species == "virginica")
+
+fit1 <- lm(Sepal.Length ~ Sepal.Width, df1)
+fit2 <- lm(Sepal.Length ~ Sepal.Width, df2)
+fit3 <- lm(Sepal.Length ~ Sepal.Width, df3)
+
+# for loop
+
+species <- unique(iris$Species)
+fit <- list(NULL)
+
+for (i in 1:length(species)) {
+  fit[[i]] <- lm(Sepal.Length ~ Sepal.Width, iris %>% filter(Species == species[i]))
+}
+
+# lapply
+
+species <- unique(iris$Species)
+
+list_beta <- lapply(species, FUN = function(x) {
+  m <- lm(Sepal.Length ~ Sepal.Width, iris %>% filter(Species == x))
+  beta <- coef(m)
+  return(beta)
+})
+
+
+
+
+
+
+
+
