@@ -47,54 +47,82 @@ df_table = df_invert %>%
             n_na_genus = sum(is.na(Genus)) + sum(Genus == "Unknown", na.rm = T),
             n = n(),
             p_na_family = round((n_na_family / n) * 100, 2),
-            p_na_genus = round(n_na_genus / n * 100, 2))
+            p_na_genus = round((n_na_genus / n) * 100, 2)) %>%
+  ungroup() %>% 
+  filter(p_na_family <= 10,
+         p_na_genus <= 10)
 
-df_table = filter(df_table, p_na_family <= 10)
-df_table = filter(df_table, p_na_genus <= 10)
-
-df_wq = filter(df_wq, EcoRegion == "P") %>% 
-  filter(!(Sp_Cond == 0)) %>% 
-  filter(!(pH_SU == 0)) %>% 
-  filter(!(Diss_Oxy == 0)) %>% 
-  filter(!(Temp_C == 0))
-df_wq = subset(df_wq, select = c( "Date","Water_Class", 
-                                  "Latitude","Longitude",
-                                  "Temp_C","Sp_Cond", "pH_SU",
-                                  "Diss_Oxy"))
-
-
-df_wq = as.data.frame(unclass(df_wq),                    
-                      stringsAsFactors = TRUE)
+df_wq = df_wq %>% 
+  filter(EcoRegion == "P",
+         Sp_Cond != 0,
+         pH_SU != 0,
+         Diss_Oxy != 0,
+         Temp_C != 0) %>% 
+  dplyr::select(Date,
+                Water_Class,
+                Latitude,
+                Longitude,
+                Temp_C,
+                Sp_Cond,
+                pH_SU,
+                Diss_Oxy) %>% 
+  mutate(site_id = paste0(round(Latitude, 4),
+                          round(Longitude, 4)),
+         Date = as.Date(Date, format = "%m/%d/%y"))
 
 
 # Diversity Class -----------------------------------------------------------
-table(df_table$Class)
-df_class = df_invert %>% filter(Class %in% c("ARACHNIDA", "BIVALVIA",
-                                 "CLITELLATA", "ENOPLA", "GASTROPODA",
-                                 "HYDROZOA","INSECTA", "MAXILLOPODA",
-                                 "OPHIURIOIDEA","POLYCHAETA", "TURBELLARIA"))
 
+## pick classes with < 10% unknowns in genus
+class_name <- df_table %>% 
+  filter(Class != "UNKNOWN") %>% 
+  drop_na(Class) %>% 
+  pull(Class) %>% 
+  unique()
 
+df_class0 = df_invert %>% 
+  filter(Class %in% class_name) %>% 
+  mutate(site_id = paste0(round(Latitude, 4),
+                          round(Longitude, 4)),
+         Date = as.Date(Date, format = "%m/%d/%y"))
 
-
-df_class2 = df_class %>% group_by(Date,
+df_class = df_class0 %>% group_by(site_id,
+                                  Date,
                                   Latitude, 
-                                  Longitude,Class) %>% 
-  summarise(Div = diversity(Abundance))
+                                  Longitude,
+                                  Class) %>% 
+  summarise(Div = diversity(Abundance,
+                            index = "shannon"))
 
-df_invertwq = merge(df_class2, df_wq, by = c("Date", 
-                                             "Latitude","Longitude"))
+df_invertwq = df_class %>% 
+  left_join(df_wq,
+            by = c("Date", 
+                   "site_id")) %>% 
+  drop_na(Latitude.y,
+          Longitude.y) %>% 
+  ungroup()
 
+# analysis ----------------------------------------------------------------
 
+pre_invertwq = df_invertwq %>%
+  filter(Date <= median(df_invertwq$Date))
 
-pre_invertwq = df_invertwq %>% filter(Date <= median(df_invertwq$Date))
+## pick latest sampling each site
+df_prem <- pre_invertwq %>% 
+  group_by(site_id) %>% 
+  slice(which.max(Date)) %>% 
+  ungroup()
 
-post_invertwq = df_invertwq %>% filter(Date > median(df_invertwq$Date))
+df_prem = df_prem %>% 
+  dplyr::select(c(Div, pH_SU, Sp_Cond, Temp_C, Diss_Oxy))
 
-
-pre_invertwq = subset(pre_invertwq, 
-                      select = c("Div", "pH_SU", "Sp_Cond","Temp_C","Diss_Oxy"))
-invertwq_glm = lm(Div~ ., data = pre_invertwq, na.action = "na.omit")
+invertwq_glm = lm(Div~ .,
+                  data = df_prem,
+                  na.action = "na.fail")
 
 invertwq_dredge = dredge(invertwq_glm)
+
+## post sample
+post_invertwq = df_invertwq %>%
+  filter(Date > median(df_invertwq$Date))
 
