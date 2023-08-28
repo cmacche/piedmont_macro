@@ -1,5 +1,4 @@
 # library -----------------------------------------------------------------
-install.packages("data.table")             # Install & load data.table package
 library(data.table)
 library(MASS)
 library(MuMIn)
@@ -11,9 +10,7 @@ library(jtools)
 library(raster)
 library(scales)
 library(gt)
-install.packages("jtools")
-install.packages("raster")
-install.packages("gt")
+
 # load data -------------------------------------------
 df_wq = read_csv("data_raw/water_quality.csv")
 df_invert = read_csv("data_raw/macroinvertebrate.csv")
@@ -905,7 +902,7 @@ df_class_results = read_csv("data_raw/class_results.csv")
 df_class_results = arrange(df_class_results, cor_result)
 
 
-df_class_results %>% gt() %>% 
+df_class_plot = df_class_results %>% gt() %>% 
   tab_header(title = "class diversity prediction results") %>%
   data_color(columns = chi_sq_p_value,
              rows = chi_sq_p_value < 1,
@@ -925,12 +922,75 @@ df_class_results %>% gt() %>%
   data_color(columns = c(Diss_Oxy, pH_SU, Sp_Cond, Temp_C),
              method = "auto",
              palette = c("green", "red"),
-             domain = c("n","y")) %>% 
+             domain = c("n","y"))
             
   )
+df_melt = melt(df_class_results)
+ggplot(df_class_results, aes(chi_sq_p_value, cor_p_value))
+
+ggplot(df_melt, aes(Diss_Oxy, pH_SU, Sp_Cond, Temp_C)) +                          
+  geom_tile(aes(fill = value))
+
+df_class_results1 <- df_class_results %>% remove_rownames() %>% group_by(class) %>%
+  mutate(newclass = paste0(class, row_number())) %>% 
+  as.data.frame() %>%
+  remove_rownames() %>%
+  column_to_rownames("newclass") %>% 
+  ungroup() %>% 
+  select(-class)
+
+library(plotly)                                                 
+install.packages("plotly")
+plot_ly(z = df_melt, type = "heatmap")  
+
+install.packages("plotrix")
+library(plotrix)
+
+as.matrix(df_class_results)
+
+scale(df_class_results1)
+
+
+summary(df_class_results)
+
+heatmap(x, scale = "none")
+install.packages("RColorBrewer")
+library(RColorBrewer)
+df <- scale(mtcars)
+df = scale(df_class_results1)
+col <- colorRampPalette(brewer.pal(10, "RdYlBu"))(256)
+heatmap(df, scale = "none", col =  col, 
+        RowSideColors = rep(c("blue", "pink"), each = 16),
+        ColSideColors = c(rep("purple", 5), rep("orange", 6)))
 
 
 
+mat <- as.matrix(expr[, grep("cell", colnames(expr))])
+type <- gsub("s\\d+_", "", colnames(mat))
+ha = HeatmapAnnotation(
+  df = data.frame(type = type),
+  annotation_height = unit(4, "mm")
+)
+
+mat <- as.matrix(df_class_results1[, grep("cell", colnames(df_class_results1))])
+type <- gsub("s\\d+_", "", colnames(mat))
+ha = HeatmapAnnotation(
+  df = data.frame(type = type),
+  annotation_height = unit(4, "mm")
+)
+install.packages("circlize")
+install.packages("ComplexHeatmap")
+library(circlize)
+library(ComplexHeatmap)
+
+col1 = colorRamp2(c(0,1), c("green", "red"))
+col2 = colorRamp2(c(-1, 0, 1), c("lightblue", "blue", "darkblue"))
+col3 = colorRamp2(c(0,0.05,1), c("white", "pink","hotpink"))
+
+ht1 = heatmap(df_class_results1[, group == c("Diss_Oxy","pH_SU")], 
+              col = col1, name = "Water Quality")
+ht2 = Heatmap(mat[, group == "B"], col = col2, name = "Group_B")
+ht1 + ht2
 
 # order data set ----------------------------------------------------------
 
@@ -2911,4 +2971,829 @@ invertwq_lm = lm(Div~ .,
 invert_dre = dredge(invertwq_lm)
 
 #zero diversity#
+
+
+
+
+# wetland -----------------------------------------------------------------
+df_wq = df_wq %>% 
+  filter(EcoRegion == "P",
+         Sp_Cond != 0,
+         pH_SU != 0,
+         Diss_Oxy != 0,
+         Temp_C != 0,
+         Water_Class %in% c("Freshwater emergent wetland", 
+                            "Forested Shrub Wetland",
+                            "Freshwater Forested/Shrub Wetland")) %>% 
+  dplyr::select(Date,
+                Water_Class,
+                Latitude,
+                Longitude,
+                Temp_C,
+                Sp_Cond,
+                pH_SU,
+                Diss_Oxy) %>% 
+  mutate(site_id = paste0(round(Latitude, 4),
+                          round(Longitude, 4)),
+         Date = as.Date(Date, format = "%m/%d/%y"))
+
+class_name <- df_table %>% 
+  filter(Class != "UNKNOWN") %>% 
+  drop_na(Class) %>% 
+  pull(Class) %>% 
+  unique()
+
+df_class0 = df_invert %>% 
+  filter(Class %in% class_name) %>% 
+  mutate(site_id = paste0(round(Latitude, 4),
+                          round(Longitude, 4)),
+         Date = as.Date(Date, format = "%m/%d/%y"))
+
+
+df_class = df_class0 %>% group_by(site_id,
+                                  Date,
+                                  Latitude, 
+                                  Longitude,Class) %>% 
+  summarise(Div = diversity(Abundance,
+                            index = "shannon"))
+
+df_invertwq = df_class %>% 
+  left_join(df_wq,
+            by = c("Date", 
+                   "site_id")) %>% 
+  drop_na(Latitude.y,
+          Longitude.y) %>% 
+  ungroup()
+
+
+# analysis_w ----------------------------------------------------------------
+
+pre_invertwq = df_invertwq %>%
+  filter(Date <= median(df_invertwq$Date))
+
+## pick latest sampling each site
+df_prem <- pre_invertwq %>% 
+  group_by(site_id) %>% 
+  slice(which.max(Date)) %>% 
+  ungroup()
+
+df_prem = df_prem %>% 
+  dplyr::select(c(Div, pH_SU, Sp_Cond, Temp_C, Diss_Oxy))
+
+
+## post sample
+post_invertwq = df_invertwq %>%
+  filter(Date > median(df_invertwq$Date))
+
+#pick latest sample#
+df_postm <- post_invertwq %>% 
+  group_by(site_id) %>% 
+  slice(which.max(Date)) %>% 
+  ungroup()
+
+df_postm = df_postm %>% 
+  dplyr::select(c(Div, pH_SU, Sp_Cond, Temp_C, Diss_Oxy))
+
+
+#dredge model#
+invertwq_lm = lm(Div~ .,
+                 data = df_prem,
+                 na.action = "na.fail")
+
+invert_dre = dredge(invertwq_lm)
+
+#prediction model#
+
+wq0_lm_mod = lm(get.models(invert_dre, subset = 1)[[1]])
+wq1_lm_mod = lm(get.models(invert_dre, subset = 2)[[1]])
+wq2_lm_mod = lm(get.models(invert_dre, subset = 3)[[1]])
+
+
+d0 = df_postm %>% dplyr::select(Div, pH_SU, Temp_C)
+d1 = df_postm %>% dplyr::select(Div, pH_SU)
+d2 = df_postm %>% dplyr::select(Div, Diss_Oxy, pH_SU)
+
+
+
+wq0_pred = predict(wq0_lm_mod, newdata = d0) %>% exp()
+wq1_pred = predict(wq1_lm_mod, newdata = d1) %>% exp()
+wq2_pred = predict(wq2_lm_mod, newdata = d2) %>% exp()
+
+
+
+
+chisq.test(df_postm$Div, wq0_pred)
+
+cor.test(df_postm$Div, wq0_pred, use = "everything")
+
+
+chisq.test(df_postm$Div, wq1_pred)
+
+cor.test(df_postm$Div, wq1_pred, use = "everything")
+
+
+chisq.test(df_postm$Div, wq2_pred)
+
+cor.test(df_postm$Div, wq2_pred, use = "everything")
+
+
+
+
+table(df_class$Class)
+
+
+# arachnida ---------------------------------------------------------------
+
+df_ara = filter(df_class, Class == "ARACHNIDA")
+
+df_invertwq = df_ara %>% 
+  left_join(df_wq,
+            by = c("Date", 
+                   "site_id")) %>% 
+  drop_na(Latitude.y,
+          Longitude.y) %>% 
+  ungroup()
+
+pre_invertwq = df_invertwq %>%
+  filter(Date <= median(df_invertwq$Date))
+
+## pick latest sampling each site
+df_prem <- pre_invertwq %>% 
+  group_by(site_id) %>% 
+  slice(which.max(Date)) %>% 
+  ungroup()
+
+df_prem = df_prem %>% 
+  dplyr::select(c(Div, pH_SU, Sp_Cond, Temp_C, Diss_Oxy))
+
+invertwq_lm = lm(Div~ .,
+                 data = df_prem,
+                 na.action = "na.fail")
+
+invertwq_dredge = dredge(invertwq_lm)
+
+#prediction model#
+
+wq0_lm_mod = lm(get.models(invert_dre, subset = 1)[[1]])
+wq1_lm_mod = lm(get.models(invert_dre, subset = 2)[[1]])
+wq2_lm_mod = lm(get.models(invert_dre, subset = 3)[[1]])
+
+
+d0 = df_postm %>% dplyr::select(Div, pH_SU, Temp_C)
+d1 = df_postm %>% dplyr::select(Div, pH_SU)
+d2 = df_postm %>% dplyr::select(Div, Diss_Oxy, pH_SU)
+
+
+
+wq0_pred = predict(wq0_lm_mod, newdata = d0) %>% exp()
+wq1_pred = predict(wq1_lm_mod, newdata = d1) %>% exp()
+wq2_pred = predict(wq2_lm_mod, newdata = d2) %>% exp()
+
+
+
+
+chisq.test(df_postm$Div, wq0_pred)
+
+cor.test(df_postm$Div, wq0_pred, use = "everything")
+
+
+chisq.test(df_postm$Div, wq1_pred)
+
+cor.test(df_postm$Div, wq1_pred, use = "everything")
+
+
+chisq.test(df_postm$Div, wq2_pred)
+
+cor.test(df_postm$Div, wq2_pred, use = "everything")
+
+#not enough diversity observations#
+
+
+# bivalvia ----------------------------------------------------------------
+
+df_biv = filter(df_class, Class == "BIVALVIA")
+
+df_invertwq = df_biv %>% 
+  left_join(df_wq,
+            by = c("Date", 
+                   "site_id")) %>% 
+  drop_na(Latitude.y,
+          Longitude.y) %>% 
+  ungroup()
+
+pre_invertwq = df_invertwq %>%
+  filter(Date <= median(df_invertwq$Date))
+
+## pick latest sampling each site
+df_prem <- pre_invertwq %>% 
+  group_by(site_id) %>% 
+  slice(which.max(Date)) %>% 
+  ungroup()
+
+df_prem = df_prem %>% 
+  dplyr::select(c(Div, pH_SU, Sp_Cond, Temp_C, Diss_Oxy))
+
+
+
+## post sample
+post_invertwq = df_invertwq %>%
+  filter(Date > median(df_invertwq$Date))
+
+#pick latest sample#
+df_postm <- post_invertwq %>% 
+  group_by(site_id) %>% 
+  slice(which.max(Date)) %>% 
+  ungroup()
+
+df_postm = df_postm %>% 
+  dplyr::select(c(Div, pH_SU, Sp_Cond, Temp_C, Diss_Oxy))
+
+#dredge model#
+invertwq_lm = lm(Div~ .,
+                 data = df_prem,
+                 na.action = "na.fail")
+
+invert_dre = dredge(invertwq_lm)
+
+#prediction model#
+
+wq0_lm_mod = lm(get.models(invert_dre, subset = 1)[[1]])
+wq1_lm_mod = lm(get.models(invert_dre, subset = 2)[[1]])
+wq2_lm_mod = lm(get.models(invert_dre, subset = 4)[[1]])
+wq3_lm_mod = lm(get.models(invert_dre, subset = 5)[[1]])
+wq4_lm_mod = lm(get.models(invert_dre, subset = 6)[[1]])
+wq5_lm_mod = lm(get.models(invert_dre, subset = 7)[[1]])
+
+
+d0 = df_postm %>% dplyr::select(Div, Diss_Oxy, Sp_Cond)
+d1 = df_postm %>% dplyr::select(Div, Diss_Oxy)
+d2 = df_postm %>% dplyr::select(Div, Diss_Oxy, pH_SU)
+d3 = df_postm %>% dplyr::select(Div, Sp_Cond)
+d4 = df_postm %>% dplyr::select(Div, Diss_Oxy, pH_SU, Sp_Cond)
+d5 = df_postm %>% dplyr::select(Div, Temp_C)
+
+
+wq0_pred = predict(wq0_lm_mod, newdata = d0) %>% exp()
+wq1_pred = predict(wq1_lm_mod, newdata = d1) %>% exp()
+wq2_pred = predict(wq2_lm_mod, newdata = d2) %>% exp()
+wq3_pred = predict(wq3_lm_mod, newdata = d3) %>% exp()
+wq4_pred = predict(wq4_lm_mod, newdata = d4) %>% exp()
+wq5_pred = predict(wq5_lm_mod, newdata = d5) %>% exp()
+
+
+
+chisq.test(df_postm$Div, wq0_pred)
+
+cor.test(df_postm$Div, wq0_pred, use = "everything")
+
+
+chisq.test(df_postm$Div, wq1_pred)
+
+cor.test(df_postm$Div, wq1_pred, use = "everything")
+
+
+chisq.test(df_postm$Div, wq2_pred)
+
+cor.test(df_postm$Div, wq2_pred, use = "everything")
+
+
+chisq.test(df_postm$Div, wq3_pred)
+
+cor.test(df_postm$Div, wq3_pred, use = "everything")
+
+
+chisq.test(df_postm$Div, wq4_pred)
+
+cor.test(df_postm$Div, wq4_pred, use = "everything")
+
+
+chisq.test(df_postm$Div, wq5_pred)
+
+cor.test(df_postm$Div, wq5_pred, use = "everything")
+
+
+
+# clitellata --------------------------------------------------------------
+df_cli = filter(df_class, Class == "CLITELLATA")
+
+df_invertwq = df_cli %>% 
+  left_join(df_wq,
+            by = c("Date", 
+                   "site_id")) %>% 
+  drop_na(Latitude.y,
+          Longitude.y) %>% 
+  ungroup()
+
+pre_invertwq = df_invertwq %>%
+  filter(Date <= median(df_invertwq$Date))
+
+## pick latest sampling each site
+df_prem <- pre_invertwq %>% 
+  group_by(site_id) %>% 
+  slice(which.max(Date)) %>% 
+  ungroup()
+
+df_prem = df_prem %>% 
+  dplyr::select(c(Div, pH_SU, Sp_Cond, Temp_C, Diss_Oxy))
+
+
+## post sample
+post_invertwq = df_invertwq %>%
+  filter(Date > median(df_invertwq$Date))
+
+#pick latest sample#
+df_postm <- post_invertwq %>% 
+  group_by(site_id) %>% 
+  slice(which.max(Date)) %>% 
+  ungroup()
+
+df_postm = df_postm %>% 
+  dplyr::select(c(Div, pH_SU, Sp_Cond, Temp_C, Diss_Oxy))
+
+#dredge model#
+invertwq_lm = lm(Div~ .,
+                 data = df_prem,
+                 na.action = "na.fail")
+
+invert_dre = dredge(invertwq_lm)
+
+#prediction model#
+
+wq0_lm_mod = lm(get.models(invert_dre, subset = 2)[[1]])
+wq1_lm_mod = lm(get.models(invert_dre, subset = 3)[[1]])
+
+
+d0 = df_postm %>% dplyr::select(Div, Diss_Oxy)
+d1 = df_postm %>% dplyr::select(Div, Temp_C)
+
+
+
+wq0_pred = predict(wq0_lm_mod, newdata = d0) %>% exp()
+wq1_pred = predict(wq1_lm_mod, newdata = d1) %>% exp()
+
+
+
+
+chisq.test(df_postm$Div, wq0_pred)
+
+cor.test(df_postm$Div, wq0_pred, use = "everything")
+
+
+chisq.test(df_postm$Div, wq1_pred)
+
+cor.test(df_postm$Div, wq1_pred, use = "everything")
+
+
+
+
+
+
+
+
+
+# enopla ------------------------------------------------------------------
+
+df_eno = filter(df_class, Class == "ENOPLA")
+
+df_invertwq = df_eno %>% 
+  left_join(df_wq,
+            by = c("Date", 
+                   "site_id")) %>% 
+  drop_na(Latitude.y,
+          Longitude.y) %>% 
+  ungroup()
+
+pre_invertwq = df_invertwq %>%
+  filter(Date <= median(df_invertwq$Date))
+
+## pick latest sampling each site
+df_prem <- pre_invertwq %>% 
+  group_by(site_id) %>% 
+  slice(which.max(Date)) %>% 
+  ungroup()
+
+df_prem = df_prem %>% 
+  dplyr::select(c(Div, pH_SU, Sp_Cond, Temp_C, Diss_Oxy))
+
+invertwq_lm = lm(Div~ .,
+                 data = df_prem,
+                 na.action = "na.fail")
+
+dredge(invertwq_lm)
+
+#no model is good as has 0 diversity at this level#
+
+
+# gastropoda --------------------------------------------------------------
+df_gas = filter(df_class, Class == "GASTROPODA")
+
+df_invertwq = df_gas %>% 
+  left_join(df_wq,
+            by = c("Date", 
+                   "site_id")) %>% 
+  drop_na(Latitude.y,
+          Longitude.y) %>% 
+  ungroup()
+
+pre_invertwq = df_invertwq %>%
+  filter(Date <= median(df_invertwq$Date))
+
+## pick latest sampling each site
+df_prem <- pre_invertwq %>% 
+  group_by(site_id) %>% 
+  slice(which.max(Date)) %>% 
+  ungroup()
+
+df_prem = df_prem %>% 
+  dplyr::select(c(Div, pH_SU, Sp_Cond, Temp_C, Diss_Oxy))
+
+
+## post sample
+post_invertwq = df_invertwq %>%
+  filter(Date > median(df_invertwq$Date))
+
+#pick latest sample#
+df_postm <- post_invertwq %>% 
+  group_by(site_id) %>% 
+  slice(which.max(Date)) %>% 
+  ungroup()
+
+df_postm = df_postm %>% 
+  dplyr::select(c(Div, pH_SU, Sp_Cond, Temp_C, Diss_Oxy))
+
+
+invertwq_lm = lm(Div~ .,
+                 data = df_prem,
+                 na.action = "na.fail")
+
+invert_dre = dredge(invertwq_lm)
+
+#prediction model#
+
+wq0_lm_mod = lm(get.models(invert_dre, subset = 1)[[1]])
+wq1_lm_mod = lm(get.models(invert_dre, subset = 2)[[1]])
+wq2_lm_mod = lm(get.models(invert_dre, subset = 3)[[1]])
+
+
+
+d0 = df_postm %>% dplyr::select(Div, Diss_Oxy)
+d1 = df_postm %>% dplyr::select(Div, Diss_Oxy, pH_SU)
+d2 = df_postm %>% dplyr::select(Div, Diss_Oxy, Sp_Cond)
+
+
+
+wq0_pred = predict(wq0_lm_mod, newdata = d0) %>% exp()
+wq1_pred = predict(wq1_lm_mod, newdata = d1) %>% exp()
+wq2_pred = predict(wq2_lm_mod, newdata = d2) %>% exp()
+
+
+
+
+chisq.test(df_postm$Div, wq0_pred)
+
+cor.test(df_postm$Div, wq0_pred, use = "everything")
+
+
+chisq.test(df_postm$Div, wq1_pred)
+
+cor.test(df_postm$Div, wq1_pred, use = "everything")
+
+
+chisq.test(df_postm$Div, wq2_pred)
+
+cor.test(df_postm$Div, wq2_pred, use = "everything")
+
+
+
+
+
+
+
+# hydro -------------------------------------------------------------------
+
+df_hyd = filter(df_class, Class == "HYDROZOA")
+
+df_invertwq = df_hyd %>% 
+  left_join(df_wq,
+            by = c("Date", 
+                   "site_id")) %>% 
+  drop_na(Latitude.y,
+          Longitude.y) %>% 
+  ungroup()
+
+pre_invertwq = df_invertwq %>%
+  filter(Date <= median(df_invertwq$Date))
+
+## pick latest sampling each site
+df_prem <- pre_invertwq %>% 
+  group_by(site_id) %>% 
+  slice(which.max(Date)) %>% 
+  ungroup()
+
+df_prem = df_prem %>% 
+  dplyr::select(c(Div, pH_SU, Sp_Cond, Temp_C, Diss_Oxy))
+
+invertwq_lm = lm(Div~ .,
+                 data = df_prem,
+                 na.action = "na.fail")
+
+dredge(invertwq_lm)
+
+#zero diversity#
+
+
+# insecta -----------------------------------------------------------------
+df_ins = filter(df_class, Class == "INSECTA")
+
+df_invertwq = df_ins %>% 
+  left_join(df_wq,
+            by = c("Date", 
+                   "site_id")) %>% 
+  drop_na(Latitude.y,
+          Longitude.y) %>% 
+  ungroup()
+
+pre_invertwq = df_invertwq %>%
+  filter(Date <= median(df_invertwq$Date))
+
+## pick latest sampling each site
+df_prem <- pre_invertwq %>% 
+  group_by(site_id) %>% 
+  slice(which.max(Date)) %>% 
+  ungroup()
+
+df_prem = df_prem %>% 
+  dplyr::select(c(Div, pH_SU, Sp_Cond, Temp_C, Diss_Oxy))
+
+
+## post sample
+post_invertwq = df_invertwq %>%
+  filter(Date > median(df_invertwq$Date))
+
+#pick latest sample#
+df_postm <- post_invertwq %>% 
+  group_by(site_id) %>% 
+  slice(which.max(Date)) %>% 
+  ungroup()
+
+df_postm = df_postm %>% 
+  dplyr::select(c(Div, pH_SU, Sp_Cond, Temp_C, Diss_Oxy))
+
+invertwq_lm = lm(Div~ .,
+                 data = df_prem,
+                 na.action = "na.fail")
+
+invert_dre = dredge(invertwq_lm)
+
+#prediction model#
+
+wq0_lm_mod = lm(get.models(invert_dre, subset = 2)[[1]])
+wq1_lm_mod = lm(get.models(invert_dre, subset = 3)[[1]])
+wq2_lm_mod = lm(get.models(invert_dre, subset = 4)[[1]])
+wq3_lm_mod = lm(get.models(invert_dre, subset = 5)[[1]])
+
+
+d0 = df_postm %>% dplyr::select(Div, Sp_Cond)
+d1 = df_postm %>% dplyr::select(Div, pH_SU, Sp_Cond, Temp_C)
+d2 = df_postm %>% dplyr::select(Div, Sp_Cond)
+d3 = df_postm %>% dplyr::select(Div, Diss_Oxy, Sp_Cond, Temp_C)
+
+
+wq0_pred = predict(wq0_lm_mod, newdata = d0) %>% exp()
+wq1_pred = predict(wq1_lm_mod, newdata = d1) %>% exp()
+wq2_pred = predict(wq2_lm_mod, newdata = d2) %>% exp()
+wq3_pred = predict(wq3_lm_mod, newdata = d3) %>% exp()
+
+
+
+chisq.test(df_postm$Div, wq0_pred)
+
+cor.test(df_postm$Div, wq0_pred, use = "everything")
+
+
+chisq.test(df_postm$Div, wq1_pred)
+
+cor.test(df_postm$Div, wq1_pred, use = "everything")
+
+
+chisq.test(df_postm$Div, wq2_pred)
+
+cor.test(df_postm$Div, wq2_pred, use = "everything")
+
+
+chisq.test(df_postm$Div, wq3_pred)
+
+cor.test(df_postm$Div, wq3_pred, use = "everything")
+
+
+
+
+
+# maxillopoda -------------------------------------------------------------
+
+df_max = filter(df_class, Class == "MAXILLOPODA")
+
+df_invertwq = df_max %>% 
+  left_join(df_wq,
+            by = c("Date", 
+                   "site_id")) %>% 
+  drop_na(Latitude.y,
+          Longitude.y) %>% 
+  ungroup()
+
+pre_invertwq = df_invertwq %>%
+  filter(Date <= median(df_invertwq$Date))
+
+## pick latest sampling each site
+df_prem <- pre_invertwq %>% 
+  group_by(site_id) %>% 
+  slice(which.max(Date)) %>% 
+  ungroup()
+
+df_prem = df_prem %>% 
+  dplyr::select(c(Div, pH_SU, Sp_Cond, Temp_C, Diss_Oxy))
+
+
+## post sample
+post_invertwq = df_invertwq %>%
+  filter(Date > median(df_invertwq$Date))
+
+#pick latest sample#
+df_postm <- post_invertwq %>% 
+  group_by(site_id) %>% 
+  slice(which.max(Date)) %>% 
+  ungroup()
+
+df_postm = df_postm %>% 
+  dplyr::select(c(Div, pH_SU, Sp_Cond, Temp_C, Diss_Oxy))
+
+invertwq_lm = lm(Div~ .,
+                 data = df_prem,
+                 na.action = "na.fail")
+
+invert_dre = dredge(invertwq_lm)
+
+#prediction model#
+
+wq0_lm_mod = lm(get.models(invert_dre, subset = 1)[[1]])
+wq1_lm_mod = lm(get.models(invert_dre, subset = 2)[[1]])
+
+
+d0 = df_postm %>% dplyr::select(Div, Diss_Oxy, Temp_C)
+d1 = df_postm %>% dplyr::select(Div, Diss_Oxy, pH_SU, Temp_C)
+
+wq0_pred = predict(wq0_lm_mod, newdata = d0) %>% exp()
+wq1_pred = predict(wq1_lm_mod, newdata = d1) %>% exp()
+
+
+
+chisq.test(df_postm$Div, wq0_pred)
+
+cor.test(df_postm$Div, wq0_pred, use = "everything")
+
+
+chisq.test(df_postm$Div, wq1_pred)
+
+cor.test(df_postm$Div, wq1_pred, use = "everything")
+
+
+
+
+
+# ophiurioidea ------------------------------------------------------------
+
+df_oph = filter(df_class, Class == "OPHIURIOIDEA")
+
+df_invertwq = df_oph %>% 
+  left_join(df_wq,
+            by = c("Date", 
+                   "site_id")) %>% 
+  drop_na(Latitude.y,
+          Longitude.y) %>% 
+  ungroup()
+
+pre_invertwq = df_invertwq %>%
+  filter(Date <= median(df_invertwq$Date))
+
+## pick latest sampling each site
+df_prem <- pre_invertwq %>% 
+  group_by(site_id) %>% 
+  slice(which.max(Date)) %>% 
+  ungroup()
+
+df_prem = df_prem %>% 
+  dplyr::select(c(Div, pH_SU, Sp_Cond, Temp_C, Diss_Oxy))
+
+invertwq_lm = lm(Div~ .,
+                 data = df_prem,
+                 na.action = "na.fail")
+
+dredge(invertwq_lm)
+
+#zero diversity#
+
+
+
+# polychaeta --------------------------------------------------------------
+
+df_pol = filter(df_class, Class == "POLYCHAETA")
+
+df_invertwq = df_pol %>% 
+  left_join(df_wq,
+            by = c("Date", 
+                   "site_id")) %>% 
+  drop_na(Latitude.y,
+          Longitude.y) %>% 
+  ungroup()
+
+pre_invertwq = df_invertwq %>%
+  filter(Date <= median(df_invertwq$Date))
+
+## pick latest sampling each site
+df_prem <- pre_invertwq %>% 
+  group_by(site_id) %>% 
+  slice(which.max(Date)) %>% 
+  ungroup()
+
+df_prem = df_prem %>% 
+  dplyr::select(c(Div, pH_SU, Sp_Cond, Temp_C, Diss_Oxy))
+
+invertwq_lm = lm(Div~ .,
+                 data = df_prem,
+                 na.action = "na.fail")
+
+dredge(invertwq_lm)
+
+#zero diversity#
+
+
+
+# turbellaria -------------------------------------------------------------
+
+df_tur = filter(df_class, Class == "TURBELLARIA")
+
+df_invertwq = df_max %>% 
+  left_join(df_wq,
+            by = c("Date", 
+                   "site_id")) %>% 
+  drop_na(Latitude.y,
+          Longitude.y) %>% 
+  ungroup()
+
+pre_invertwq = df_invertwq %>%
+  filter(Date <= median(df_invertwq$Date))
+
+## pick latest sampling each site
+df_prem <- pre_invertwq %>% 
+  group_by(site_id) %>% 
+  slice(which.max(Date)) %>% 
+  ungroup()
+
+df_prem = df_prem %>% 
+  dplyr::select(c(Div, pH_SU, Sp_Cond, Temp_C, Diss_Oxy))
+
+
+## post sample
+post_invertwq = df_invertwq %>%
+  filter(Date > median(df_invertwq$Date))
+
+#pick latest sample#
+df_postm <- post_invertwq %>% 
+  group_by(site_id) %>% 
+  slice(which.max(Date)) %>% 
+  ungroup()
+
+df_postm = df_postm %>% 
+  dplyr::select(c(Div, pH_SU, Sp_Cond, Temp_C, Diss_Oxy))
+
+invertwq_lm = lm(Div~ .,
+                 data = df_prem,
+                 na.action = "na.fail")
+
+invert_dre = dredge(invertwq_lm)
+
+#prediction model#
+
+wq0_lm_mod = lm(get.models(invert_dre, subset = 1)[[1]])
+wq1_lm_mod = lm(get.models(invert_dre, subset = 2)[[1]])
+
+
+
+d0 = df_postm %>% dplyr::select(Div, Diss_Oxy, Temp_C)
+d1 = df_postm %>% dplyr::select(Div, Diss_Oxy, pH_SU, Temp_C)
+
+wq0_pred = predict(wq0_lm_mod, newdata = d0) %>% exp()
+wq1_pred = predict(wq1_lm_mod, newdata = d1) %>% exp()
+
+
+
+chisq.test(df_postm$Div, wq0_pred)
+
+cor.test(df_postm$Div, wq0_pred, use = "everything")
+
+
+chisq.test(df_postm$Div, wq1_pred)
+
+cor.test(df_postm$Div, wq1_pred, use = "everything")
+
 
