@@ -1,0 +1,85 @@
+﻿Site,Habitat,Sample,Water_Class,Date,Class,Order,Family,Species name,Count,Temperature_C,DO,SC,pH
+Bog,Wet,1,Riverine,4/13/23,Unknown,Unknown,Unknown,Annelied,15,13.4292772,0.846625636,225.4007884,7.12
+Bog,Wet,1,Riverine,4/13/23,Clitellata,Arhynchobdellida,Unknown,Arhynchobdellida,2,13.4292772,0.846625636,225.4007884,7.12
+Bog,Wet,1,Riverine,4/13/23,Insecta,Diptera,Chironomidae,Chironomidae,1,13.4292772,0.846625636,225.4007884,7.12
+Bog,Dry,1,Riverine,4/13/23,Insecta,Hymenoptera,Formicidae,Formicidae,1,13.4292772,0.846625636,225.4007884,7.12
+Bog,Wet,1,Riverine,4/13/23,Clitellata,Rhynchobdellida,Glossiphoniidae,Glossiphoniidae,2,13.4292772,0.846625636,225.4007884,7.12
+Bog,Dry,1,Riverine,4/13/23,Entognatha,Entomobryomorpha,Isotomidae,Isotomidae,1,13.4292772,0.846625636,225.4007884,7.12
+Bog,Dry,1,Riverine,4/13/23,Arachnida,Sarcoptiformes,Nanhermanniidae,Nanhermanniidae,1,13.4292772,0.846625636,225.4007884,7.12
+Bog,Dry,1,Riverine,4/13/23,Arachnida,Sarcoptiformes,Nothridae,Nothridae,1,13.4292772,0.846625636,225.4007884,7.12
+Bog,Dry,1,Riverine,4/13/23,Arachnida,Oribatida,Unknown,Orbidata,64,13.4292772,0.846625636,225.4007884,7.12
+Bog,Dry,1,Riverine,4/13/23,Arachnida,Araneae,Pholcidae,Pholcidae,1,13.4292772,0.846625636,225.4007884,7.12
+Bog,Dry,1,Riverine,4/13/23,Arachnida,Mesostigmata,Phytoseioidae,Phytoseioidae,1,13.4292772,0.846625636,225.4007884,7.12
+Bog,Dry,1,Riverine,4/13/23,Arachnida,Araneae,Plectreuridae,Plectreuridae,1,13.4292772,0.846625636,225.4007884,7.12
+Bog,Dry,1,Riverine,4/13/23,Arachnida,"	Opiliones",Sclerosomatidae,Sclerosomatidae,1,13.4292772,0.846625636,225.4007884,7.12
+Bog,Wet,1,Riverine,4/13/23,Entognatha,Symphypleona,Sminthurididae,Sminthurididae,2,13.4292772,0.846625636,225.4007884,7.12
+Bog,Dry,1,Riverine,4/13/23,Insecta,Thysanoptera,Thripidae,Thripidae,8,13.4292772,0.846625636,225.4007884,7.12
+Bog,Dry,2,Riverine,4/13/23,Arachnida,Sarcoptiformes,Achipteriidae,Achipteriidae,1,13.2043936,1.206752039,237.9399851,6.42
+Bog,Wet,2,Riverine,4/13/23,Unknown,Unknown,Unknown,Annelied,1,13.2043936,1.206752039,237.9399851,6.42
+Bog,Dry,2,Riverine,4/13/23,Arachnida,Trombidiformes,Bdellidea,Bdellidea,2,13.2043936,1.206752039,237.9399851,6.42
+Bog,Dry,2,Riverine,4/13/23,Entognatha,Entomobryomorpha,Entomobryidae,Entomobryidae,1,13.2043936,1.206752039,237.9399851,6.42
+Bog,Wet,2,Riverine,4/13/23,Arachnida,Sarcoptiformes,Nothridae,Nothridae,1,13.2043936,1.206752039,237.9399851,6.42
+Bog,Dry,2,Riverine,4/13/23,Insecta,Thysanoptera,Thripidae,Thripidae,11,13.2043936,1.206752039,237.9399851,6.42
+Court,Dry,1,Stormwater Wetland,4/3/23,Arachnida,Unknown,Unknown,Acari,2,12.43654268,1.676940404,114.78679,6.06260496
+Court,Dry,1,Stormwater Wetland,4/3/23,Arachnida,Trombidiformes,Bdellidea,Bdellidea,1,12.43654268,1.676940404,114.78679,6.06260496
+Court,Dry,1,Stormwater Wetland,4/3/23,Arachnida,Mesostigmata,ichthyostomatogasteridae,ichthyostomatogasteridae,1,12.43654268,1.676940404,114.78679,6.06260496
+Court,Dry,1,Stormwater Wetland,4/3/23,Arachnida,Mesostigmata,Parasitoidea,Parasitoidea,2,12.43654268,1.676940404,114.78679,6.06260496
+Court,Dry,1,Stormwater Wetland,4/3/23,Insecta,Thysanoptera,thripidae,thripidae,1,12.43654268,1.676940404,114.78679,6.06260496
+Court,Dry,1,Stormwater Wetland,4/3/23,Insecta,Lepidoptera,Pyralidae ,Pyralidae ,3,12.43654268,1.676940404,114.78679,6.06260496
+Court,Dry,1,Stormwater Wetland,4/3/23,Insecta,Diptera,Trichoceridae,Trichoceridae,2,12.43654268,1.676940404,114.78679,6.06260496
+Court,Wet,2,Stormwater Wetland,4/3/23,Insecta,Odonata,Anisoptera,Anisoptera,1,10.21037152,1.734597868,63.87137396,5.411819176
+Court,Wet,2,Stormwater Wetland,4/3/23,Unknown,Unknown,Unknown,Annelied,1,10.21037152,1.734597868,63.87137396,5.411819176
+Court,Dry,2,Stormwater Wetland,4/3/23,Insecta,Blattodea,Blattellidae,Blattellidae,1,10.21037152,1.734597868,63.87137396,5.411819176
+Court,Wet,2,Stormwater Wetland,4/3/23,Insecta,Unknown,Unknown,Insecta,1,10.21037152,1.734597868,63.87137396,5.411819176
+Hogans_Creek,Dry,1,Wetland,4/14/23,Arachnida,Trombidiformes,Bdellidea,Bdellidea,1,14.66730596,9.105919256,2.187439535,7.43
+Hogans_Creek,Dry,1,Wetland,4/14/23,Insecta,Coleoptera,Carabidae,Carabidae,1,14.66730596,9.105919256,2.187439535,7.43
+Hogans_Creek,Dry,1,Wetland,4/14/23,Insecta,Diptera,Chironomidae,Chironomidae,3,14.66730596,9.105919256,2.187439535,7.43
+Hogans_Creek,Dry,1,Wetland,4/14/23,Entognatha,Entomobryomorpha,Isotomidae,Istomidae,14,14.66730596,9.105919256,2.187439535,7.43
+Hogans_Creek,Dry,1,Wetland,4/14/23,Arachnida,Sarcoptiformes,Nothridae,Nothridae,1,14.66730596,9.105919256,2.187439535,7.43
+Hogans_Creek,Dry,1,Wetland,4/14/23,Entognatha,Symphypleona,Sminthurididae,Sminthurididae,6,14.66730596,9.105919256,2.187439535,7.43
+Hogans_Creek,Dry,1,Wetland,4/14/23,Arachnida,Trombidiformes,Sphaerolichida,Sphaerolichida,1,14.66730596,9.105919256,2.187439535,7.43
+Hogans_Creek,Dry,1,Wetland,4/14/23,Entognatha,Entomobryomorpha,Tomoceridae,Tomoceridae,4,14.66730596,9.105919256,2.187439535,7.43
+Hogans_Creek,Dry,2,Wetland,4/13/23,Arachnida,Unknown,Unknown,Acari,2,14.58827344,3.906518676,52.79050436,6.05
+Hogans_Creek,Dry,2,Wetland,4/13/23,Arachnida,Sarcoptiformes,Achipteriidae,Achipteriidae,1,14.58827344,3.906518676,52.79050436,6.05
+Hogans_Creek,Wet,2,Wetland,4/14/23,Malacostraca,Amphipoda,Unknown,Amphipoda,3,14.58827344,3.906518676,52.79050436,6.05
+Hogans_Creek,Dry,2,Wetland,4/13/23,Entognatha,"	Symphypleona",Arrhopalitidae,Arrhopalitidae,3,14.58827344,3.906518676,52.79050436,6.05
+Hogans_Creek,Dry,2,Wetland,4/13/23,Entognatha,Unknown,Unknown,Colombola,1,14.58827344,3.906518676,52.79050436,6.05
+Hogans_Creek,Dry,2,Wetland,4/13/23,Entognatha,Entomobryomorpha,Entomobryidae,Entomobryidae,8,14.58827344,3.906518676,52.79050436,6.05
+Hogans_Creek,Dry,2,Wetland,4/13/23,Entognatha,Entomobryomorpha,Isotomidae,Isotomidae,15,14.58827344,3.906518676,52.79050436,6.05
+Hogans_Creek,Wet,2,Wetland,4/14/23,Entognatha,Entomobryomorpha,Isotomidae,Isotomidae,1,14.58827344,3.906518676,52.79050436,6.05
+Hogans_Creek,Dry,2,Wetland,4/13/23,Arachnida,Prostigmata,Nanorchestidae,Nanorchestidae,3,14.58827344,3.906518676,52.79050436,6.05
+Hogans_Creek,Dry,2,Wetland,4/13/23,Diplopoda,Polydesmida,Polydesmidae,Polydesmidae,1,14.58827344,3.906518676,52.79050436,6.05
+Hogans_Creek,Dry,2,Wetland,4/13/23,Entognatha,Entomobryomorpha,Tomoceridae,Tomoceridae,8,14.58827344,3.906518676,52.79050436,6.05
+Hogans_Creek,Dry,2,Wetland,4/13/23,Arachnida,Trombidiformes,Trombidiidae,Trombidiidae,1,14.58827344,3.906518676,52.79050436,6.05
+Open,Dry,1,Stormwater Wetland,4/11/23,"	Insecta",Thysanoptera,Aelothripidae,Aelothripidae,1,14.64283292,10.22477834,25.10040752,7.45
+Open,Wet,1,Stormwater Wetland,4/11/23,Unknown,Unknown,Unknown,Annelied,4,14.64283292,10.22477834,25.10040752,7.45
+Open,Dry,1,Stormwater Wetland,4/11/23,Entognatha,Entomobryomorpha,Entomobryidae,Entomobryidae,1,14.64283292,10.22477834,25.10040752,7.45
+Open,Dry,1,Stormwater Wetland,4/11/23,Insecta,"	Thysanoptera","	Thripidae","	Thripidae",1,14.64283292,10.22477834,25.10040752,7.45
+Open,Dry,1,Stormwater Wetland,4/11/23,Unknown,Unknown,Unknown,Unknown,1,14.64283292,10.22477834,25.10040752,7.45
+Open,Wet,2,Stormwater Wetland,4/11/23,Unknown,Unknown,Unknown,Annelied,1,22.88234164,9.928902384,0.379247452,6.94
+Open,Dry,2,Stormwater Wetland,4/11/23,Arachnida,Trombidiformes,Bdellidea,Bdellidea,1,22.88234164,9.928902384,0.379247452,6.94
+Open,Dry,2,Stormwater Wetland,4/11/23,Insecta,Blattodea,Blattellidae,Blattellidae,2,22.88234164,9.928902384,0.379247452,6.94
+Open,Dry,2,Stormwater Wetland,4/11/23,Arachnida,Araneae,Dysderidae,Dysderidae,1,22.88234164,9.928902384,0.379247452,6.94
+Open,Dry,2,Stormwater Wetland,4/11/23,Insecta,Hymenoptera,Formicidae,Formicidae,1,22.88234164,9.928902384,0.379247452,6.94
+Open,Wet,2,Stormwater Wetland,4/11/23,Insecta,Hemiptera,Psyllidae,Psyllidae,1,22.88234164,9.928902384,0.379247452,6.94
+Wood,Dry,1,Stormwater Wetland,4/10/23,Arachnida,Sarcoptiformes,Achipteriidae,Achipteriidae,1,11.23314,3.21612006,86.70747356,7.39
+Wood,Dry,1,Stormwater Wetland,4/10/23,Entognatha,Entomobryomorpha,Entomobryidae,Entomobryidae,1,11.23314,3.21612006,86.70747356,7.39
+Wood,Dry,1,Stormwater Wetland,4/10/23,Arachnida,Sarcoptiformes,Euphthiracaroidea,Euphthiracaroidea,2,11.23314,3.21612006,86.70747356,7.39
+Wood,Dry,1,Stormwater Wetland,4/10/23,Insecta,Hymenoptera,Formicidae,Formicidae,1,11.23314,3.21612006,86.70747356,7.39
+Wood,Dry,1,Stormwater Wetland,4/10/23,Entognatha,Entomobryomorpha,Isotomidae,Isotomidae,1,11.23314,3.21612006,86.70747356,7.39
+Wood,Dry,1,Stormwater Wetland,4/10/23,Arachnida,Araneae,Ochyroceratidae,Ochyroceratidae,1,11.23314,3.21612006,86.70747356,7.39
+Wood,Dry,1,Stormwater Wetland,4/10/23,Unknown,Unknown,Unknown,Unknown,1,11.23314,3.21612006,86.70747356,7.39
+Wood,Wet,1,Stormwater Wetland,4/10/23,Entognatha,Symphypleona,Sminthurididae,Sminthurididae,2,11.23314,3.21612006,86.70747356,7.39
+Wood,Dry,1,Stormwater Wetland,4/10/23,Insecta,Diptera,Chironomidae,Tanupodidae,1,11.23314,3.21612006,86.70747356,7.39
+Wood,Dry,1,Stormwater Wetland,4/10/23,Entognatha,Entomobryomorpha,Tomoceridae,Tomoceridae,1,11.23314,3.21612006,86.70747356,7.39
+Wood,Dry,1,Stormwater Wetland,4/10/23,Unknown,Unknown,Unknown,Unknown,1,11.23314,3.21612006,86.70747356,7.39
+Wood,Dry,2,Stormwater Wetland,4/10/23,Unknown,Unknown,Unknown,Annelied,1,9.676054768,10.2762675,83.14987544,7.18
+Wood,Dry,2,Stormwater Wetland,4/10/23,Arachnida,Mesostigmata,Ascoidea,Ascoidea,1,9.676054768,10.2762675,83.14987544,7.18
+Wood,Dry,2,Stormwater Wetland,4/10/23,Arachnida,Trombidiformes,Bdellidea,Bdellidea,3,9.676054768,10.2762675,83.14987544,7.18
+Wood,Dry,2,Stormwater Wetland,4/10/23,Entognatha,Entomobryomorpha,Entomobryidae,Entomobryidae,2,9.676054768,10.2762675,83.14987544,7.18
+Wood,Wet,2,Stormwater Wetland,4/10/23,Entognatha,Entomobryomorpha,Isotomidae,Isotomidae,1,9.676054768,10.2762675,83.14987544,7.18
+Wood,Dry,2,Stormwater Wetland,4/10/23,Entognatha,Entomobryomorpha,Isotomidae,Isotomidae,1,9.676054768,10.2762675,83.14987544,7.18
+Wood,Dry,2,Stormwater Wetland,4/10/23,Arachnida,Araneae,Lycosidae,Lycosidae,1,9.676054768,10.2762675,83.14987544,7.18
+Wood,Dry,2,Stormwater Wetland,4/10/23,Insecta,Lepidoptera,Pyralidae ,Pyralidae ,1,9.676054768,10.2762675,83.14987544,7.18
+Wood,Wet,2,Stormwater Wetland,4/10/23,Entognatha,Symphypleona,Sminthurididae,Sminthurididae,2,9.676054768,10.2762675,83.14987544,7.18
+Wood,Dry,2,Stormwater Wetland,4/10/23,Entognatha,Entomobryomorpha,Tomoceridae,Tomoceridae,1,9.676054768,10.2762675,83.14987544,7.18
