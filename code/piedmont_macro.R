@@ -170,7 +170,7 @@ wq5_lm_mod = lm(get.models(invert_dre, subset = 7)[[1]])
 
 
 
-d0 = df_postm %>% dplyr::select(Div, Temp_C)
+d0 = df_postm %>% dplyr::select(Div, Sp_Cond)
 d1 = df_postm %>% dplyr::select(Div, Sp_Cond)
 d2 = df_postm %>% dplyr::select(Div, Sp_Cond, Temp_C)
 d3 = df_postm %>% dplyr::select(Div, Diss_Oxy)
@@ -2603,6 +2603,9 @@ ggplot(plot_data, aes(x = predicted_value, y = observed_value)) +
   geom_abline(intercept = 0, slope = 1, color = "green")
 
 
+
+
+
 # trichoptera -------------------------------------------------------------
 
 df_tri = filter(df_order, Order == "TRICHOPTERA")
@@ -3911,6 +3914,26 @@ cor.test(df_postm$Div, wq1_pred, use = "everything")
 chisq.test(df_postm$Div, wq2_pred)
 
 cor.test(df_postm$Div, wq2_pred, use = "everything")
+
+ggplot(df_prem, aes(x = Sp_Cond, y = Div )) +
+  geom_point() +
+  geom_smooth(method = "lm")
+
+ggplot(df_postm, aes(x = Sp_Cond, y = Div )) +
+  geom_point() +
+  geom_smooth(method = "lm")
+
+ggplot(wq1_pred, aes(x = Sp_Cond, y = Div )) +
+  geom_point() +
+  geom_smooth(method = "lm")
+
+plot_data = data.frame(predicted_value = wq1_pred,
+                       observed_value = d1$Div)
+
+# plot predicted values and actual values
+ggplot(plot_data, aes(x = predicted_value, y = observed_value)) +
+  geom_point() +
+  geom_smooth(method = "lm")
 
 # order data set_w ----------------------------------------------------------
 df_wq = read_csv("data_raw/water_quality.csv")
@@ -6782,7 +6805,7 @@ df_invertwq1 = df_order1 %>%
 
 
 
-# analysis_order ----------------------------------------------------------------
+# analysis_order_r ----------------------------------------------------------------
 
 pre_invertwq = df_invertwq1 %>%
   filter(Date <= median(df_invertwq$Date))
@@ -6867,7 +6890,7 @@ cor.test(df_postm$Div, wq3_pred, use = "everything")
 
 
 
-# trombidiformes ----------------------------------------------------------
+# trombidiformes_r ----------------------------------------------------------
 
 df_trom = filter(df_order, Order == "TROMBIDIFORMES")
 
@@ -6916,7 +6939,7 @@ invert_dre = dredge(invertwq_lm)
 #zero diversity#
 
 
-# unionida ----------------------------------------------------------------
+# unionida_r ----------------------------------------------------------------
 
 df_uni = filter(df_order, Order == "UNIONIDA")
 
@@ -8615,6 +8638,7 @@ df_fieldiwq1 = df_fieldiwq0 %>% filter(Class != "Unknown")
 df_fieldiwq2 = df_fieldiwq1 %>% filter(Order != "Unknown")
 df_fieldiwq3 = df_fieldiwq2 %>% filter(Family != "Unknown")
 
+
 df_field_all = df_fieldiwq1 %>% group_by(Site, Sample,
                                    Temperature_C, DO, SC, pH) %>% 
   summarise(Div = diversity(Count,
@@ -8633,7 +8657,10 @@ df_field_order = df_fieldiwq3 %>% group_by(Site, Sample, Order,
 
 
 
-#riverine#
+# field riverine results all --------------------------------------------------
+
+
+#all#
 df_wq = read_csv("data_raw/water_quality.csv")
 
 
@@ -8736,11 +8763,16 @@ invert_dre = dredge(invertwq_lm)
 
 wq1_lm_mod = lm(get.models(invert_dre, subset = 3)[[1]])
 
+#Bog 1#
 predict(wq1_lm_mod, newdata = list(Sp_Cond = 225.4007884))
+
+#Bog 2#
 predict(wq1_lm_mod, newdata = list(Sp_Cond = 237.9399851))
 
 
-#insecta_bog_riverine#
+
+# field riverine insecta --------------------------------------------------
+
 df_ins = filter(df_class, Class == "INSECTA")
 
 df_invertwq = df_ins %>% 
@@ -8790,6 +8822,7 @@ wq3_lm_mod = lm(get.models(invert_dre, subset = 5)[[1]])
 wq5_lm_mod = lm(get.models(invert_dre, subset = 7)[[1]])
 wq6_lm_mod = lm(get.models(invert_dre, subset = 8)[[1]])
 
+#bog sample 1#
 predict(wq0_lm_mod, newdata = list(Diss_Oxy = 0.8466256,
                                    Sp_Cond = 225.4007884, 
                                    Temp_C = 13.429277))
@@ -8800,7 +8833,7 @@ predict(wq5_lm_mod, newdata = list(Diss_Oxy =0.8466256 ,
                                    Temp_C = 13.429277))
 predict(wq6_lm_mod, newdata = list(Diss_Oxy = 0.8466256))
 
-
+#bog sample 2#
 predict(wq0_lm_mod, newdata = list(Diss_Oxy = 1.2067520,
                                    Sp_Cond = 237.9399851, 
                                    Temp_C = 13.204394))
@@ -8811,6 +8844,9 @@ predict(wq5_lm_mod, newdata = list(Diss_Oxy =1.2067520 ,
                                    Temp_C = 13.204394))
 predict(wq6_lm_mod, newdata = list(Diss_Oxy = 1.2067520))
 
+
+
+# filed riverine clitellata -----------------------------------------------
 
 
 
@@ -8841,14 +8877,6 @@ df_prem = df_prem %>%
 post_invertwq = df_invertwq %>%
   filter(Date > median(df_invertwq$Date))
 
-#pick latest sample#
-df_postm <- post_invertwq %>% 
-  group_by(site_id) %>% 
-  slice(which.max(Date)) %>% 
-  ungroup()
-
-df_postm = df_postm %>% 
-  dplyr::select(c(Div, pH_SU, Sp_Cond, Temp_C, Diss_Oxy))
 
 #dredge model#
 invertwq_lm = lm(Div~ .,
@@ -8864,16 +8892,613 @@ wq2_lm_mod = lm(get.models(invert_dre, subset = 4)[[1]])
 wq3_lm_mod = lm(get.models(invert_dre, subset = 5)[[1]])
 wq4_lm_mod = lm(get.models(invert_dre, subset = 6)[[1]])
 
-
+#bog 1#
 predict(wq0_lm_mod, newdata = list(Diss_Oxy = 0.8466256 ))
 predict(wq2_lm_mod, newdata = list(Diss_Oxy =0.8466256,
                                    Sp_Cond = 225.4007884))
 predict(wq3_lm_mod, newdata = list(Temp_C = 13.429277))
-predict(wq4_lm_mod, newdata = list(pH_SU = 7.120000))
+predict(wq4_lm_mod, newdata = list(pH_SU = 7.120000)) # this had a - corr but
+#is one of the closer values to diversity#
 
 
-Diss_Oxy =0.8466256 , 
-pH_SU = 7.120000, 
-Sp_Cond = 225.4007884,
-Temp_C = 13.429277
+
+
+# field order riverine all ----------------------------------------------------------
+df_wq = read_csv("data_raw/water_quality.csv")
+
+
+
+
+df_wq = df_wq %>% 
+  filter(EcoRegion == "P",
+         Sp_Cond != 0,
+         pH_SU != 0,
+         Diss_Oxy != 0,
+         Temp_C != 0,
+         Water_Class == "Riverine") %>% 
+  dplyr::select(Date,
+                Water_Class,
+                Latitude,
+                Longitude,
+                Temp_C,
+                Sp_Cond,
+                pH_SU,
+                Diss_Oxy) %>% 
+  mutate(site_id = paste0(round(Latitude, 4),
+                          round(Longitude, 4)),
+         Date = as.Date(Date, format = "%m/%d/%y"))
+
+## pick orderes with < 10% unknowns in genus
+order_name <- df_table %>% 
+  filter(Order != "UNKNOWN") %>% 
+  drop_na(Order) %>% 
+  pull(Order) %>% 
+  unique()
+
+df_order0 = df_invert %>% 
+  filter(Order %in% order_name) %>% 
+  mutate(site_id = paste0(round(Latitude, 4),
+                          round(Longitude, 4)),
+         Date = as.Date(Date, format = "%m/%d/%y"))
+
+df_order = df_order0 %>% group_by(site_id,
+                                  Date,
+                                  Latitude, 
+                                  Longitude,
+                                  Order) %>% 
+  summarise(Div = diversity(Abundance,
+                            index = "shannon"))
+df_order1 = df_order0 %>% group_by(site_id,
+                                   Date,
+                                   Latitude, 
+                                   Longitude) %>% 
+  summarise(Div = diversity(Abundance,
+                            index = "shannon"))
+
+df_invertwq = df_order %>% 
+  left_join(df_wq,
+            by = c("Date", 
+                   "site_id")) %>% 
+  drop_na(Latitude.y,
+          Longitude.y) %>% 
+  ungroup()## pick orderes with < 10% unknowns in genus
+
+
+df_invertwq1 = df_order1 %>% 
+  left_join(df_wq,
+            by = c("Date", 
+                   "site_id")) %>% 
+  drop_na(Latitude.y,
+          Longitude.y) %>% 
+  ungroup()
+
+
+pre_invertwq = df_invertwq1 %>%
+  filter(Date <= median(df_invertwq$Date))
+
+## pick latest sampling each site
+df_prem <- pre_invertwq %>% 
+  group_by(site_id) %>% 
+  slice(which.max(Date)) %>% 
+  ungroup()
+
+df_prem = df_prem %>% 
+  dplyr::select(c(Div, pH_SU, Sp_Cond, Temp_C, Diss_Oxy))
+
+
+
+#dredge model#
+invertwq_lm = lm(Div~ .,
+                 data = df_prem,
+                 na.action = "na.fail")
+
+invert_dre = dredge(invertwq_lm)
+
+#prediction model#
+
+
+wq1_lm_mod = lm(get.models(invert_dre, subset = 3)[[1]])
+
+#bog 1#
+predict(wq1_lm_mod, newdata = list(Sp_Cond = 225.4007884))
+
+#bog 2#
+predict(wq1_lm_mod, newdata = list(Sp_Cond = 237.9399851))
+
+
+
+
+
+# field order diptera -----------------------------------------------------------------
+
+
+df_dip = filter(df_order, Order == "DIPTERA")
+
+df_invertwq = df_dip %>% 
+  left_join(df_wq,
+            by = c("Date", 
+                   "site_id")) %>% 
+  drop_na(Latitude.y,
+          Longitude.y) %>% 
+  ungroup()
+
+pre_invertwq = df_invertwq %>%
+  filter(Date <= median(df_invertwq$Date))
+
+## pick latest sampling each site
+df_prem <- pre_invertwq %>% 
+  group_by(site_id) %>% 
+  slice(which.max(Date)) %>% 
+  ungroup()
+
+df_prem = df_prem %>% 
+  dplyr::select(c(Div, pH_SU, Sp_Cond, Temp_C, Diss_Oxy))
+
+
+
+
+#dredge model#
+invertwq_lm = lm(Div~ .,
+                 data = df_prem,
+                 na.action = "na.fail")
+
+invert_dre = dredge(invertwq_lm)
+
+#prediction model#
+
+wq0_lm_mod = lm(get.models(invert_dre, subset = 1)[[1]])
+wq1_lm_mod = lm(get.models(invert_dre, subset = 2)[[1]])
+
+
+
+
+
+#bog 1#
+predict(wq0_lm_mod, newdata = list(pH_SU = 7.120000,
+                                   Sp_Cond = 225.4007884,
+                                   Temp_C =13.429277))
+predict(wq1_lm_mod, newdata = list(Diss_Oxy = 0.8466256,
+                                   pH_SU = 7.120000,
+                                   Sp_Cond = 225.4007884,
+                                   Temp_C =13.429277))
+
+
+
+
+
+# field riverine rhynchobdellida ---------------------------------------------------------
+
+df_rhy = filter(df_order, Order == "RHYNCHOBDELLIDA")
+
+df_invertwq = df_rhy %>% 
+  left_join(df_wq,
+            by = c("Date", 
+                   "site_id")) %>% 
+  drop_na(Latitude.y,
+          Longitude.y) %>% 
+  ungroup()
+
+pre_invertwq = df_invertwq %>%
+  filter(Date <= median(df_invertwq$Date))
+
+## pick latest sampling each site
+df_prem <- pre_invertwq %>% 
+  group_by(site_id) %>% 
+  slice(which.max(Date)) %>% 
+  ungroup()
+
+df_prem = df_prem %>% 
+  dplyr::select(c(Div, pH_SU, Sp_Cond, Temp_C, Diss_Oxy))
+
+
+
+#dredge model#
+invertwq_lm = lm(Div~ .,
+                 data = df_prem,
+                 na.action = "na.fail")
+
+invert_dre = dredge(invertwq_lm)
+
+#prediction model#
+
+wq0_lm_mod = lm(get.models(invert_dre, subset = 1)[[1]])
+wq1_lm_mod = lm(get.models(invert_dre, subset = 3)[[1]])
+
+#bog 1#
+predict(wq0_lm_mod, newdata = list(Temp_C =13.429277))
+predict(wq1_lm_mod, newdata = list(Sp_Cond = 225.4007884,
+                                   Temp_C =13.429277))
+
+
+
+
+
+
+
+
+
+# field wetland class all -----------------------------------------------------------------
+df_wq = read_csv("data_raw/water_quality.csv")
+
+
+df_wq = df_wq %>% 
+  filter(EcoRegion == "P",
+         Sp_Cond != 0,
+         pH_SU != 0,
+         Diss_Oxy != 0,
+         Temp_C != 0,
+         Water_Class %in% c("Freshwater emergent wetland", 
+                            "Forested Shrub Wetland",
+                            "Freshwater Forested/Shrub Wetland")) %>% 
+  dplyr::select(Date,
+                Water_Class,
+                Latitude,
+                Longitude,
+                Temp_C,
+                Sp_Cond,
+                pH_SU,
+                Diss_Oxy) %>% 
+  mutate(site_id = paste0(round(Latitude, 4),
+                          round(Longitude, 4)),
+         Date = as.Date(Date, format = "%m/%d/%y"))
+
+class_name <- df_table %>% 
+  filter(Class != "UNKNOWN") %>% 
+  drop_na(Class) %>% 
+  pull(Class) %>% 
+  unique()
+
+df_class0 = df_invert %>% 
+  filter(Class %in% class_name) %>% 
+  mutate(site_id = paste0(round(Latitude, 4),
+                          round(Longitude, 4)),
+         Date = as.Date(Date, format = "%m/%d/%y"))
+
+
+df_class = df_class0 %>% group_by(site_id,
+                                  Date,
+                                  Latitude, 
+                                  Longitude,Class) %>% 
+  summarise(Div = diversity(Abundance,
+                            index = "shannon"))
+df_class1 = df_class0 %>% group_by(site_id,
+                                   Date,
+                                   Latitude, 
+                                   Longitude) %>% 
+  summarise(Div = diversity(Abundance,
+                            index = "shannon"))
+
+df_invertwq = df_class %>% 
+  left_join(df_wq,
+            by = c("Date", 
+                   "site_id")) %>% 
+  drop_na(Latitude.y,
+          Longitude.y) %>% 
+  ungroup()
+
+df_invertwq1 = df_class1 %>% 
+  left_join(df_wq,
+            by = c("Date", 
+                   "site_id")) %>% 
+  drop_na(Latitude.y,
+          Longitude.y) %>% 
+  ungroup()
+
+
+pre_invertwq = df_invertwq1 %>%
+  filter(Date <= median(df_invertwq$Date))
+
+## pick latest sampling each site
+df_prem <- pre_invertwq %>% 
+  group_by(site_id) %>% 
+  slice(which.max(Date)) %>% 
+  ungroup()
+
+df_prem = df_prem %>% 
+  dplyr::select(c(Div, pH_SU, Sp_Cond, Temp_C, Diss_Oxy))
+
+
+
+#dredge model#
+invertwq_lm = lm(Div~ .,
+                 data = df_prem,
+                 na.action = "na.fail")
+
+invert_dre = dredge(invertwq_lm)
+
+#prediction model#
+
+wq0_lm_mod = lm(get.models(invert_dre, subset = 2)[[1]])
+
+
+#court 1#
+predict(wq0_lm_mod, newdata = list(Sp_Cond = 114.7867900))
+
+
+#court 2#
+predict(wq0_lm_mod, newdata = list(Sp_Cond = 63.8713740))
+
+#hogan 1#
+predict(wq0_lm_mod, newdata = list(Sp_Cond = 2.1874395))
+
+
+#hogan 2#
+predict(wq0_lm_mod, newdata = list(Sp_Cond = 52.7905044))
+#open 1#
+predict(wq0_lm_mod, newdata = list(Sp_Cond = 25.1004075))
+
+
+#open 2#
+predict(wq0_lm_mod, newdata = list(Sp_Cond = 0.3792475))
+
+#wood 1#
+predict(wq0_lm_mod, newdata = list(Sp_Cond = 86.7074736))
+
+
+#wood 2#
+predict(wq0_lm_mod, newdata = list(Sp_Cond = 83.1498754))
+
+
+
+
+# field wetland insecta -----------------------------------------------------------------
+df_ins = filter(df_class, Class == "INSECTA")
+
+df_invertwq = df_ins %>% 
+  left_join(df_wq,
+            by = c("Date", 
+                   "site_id")) %>% 
+  drop_na(Latitude.y,
+          Longitude.y) %>% 
+  ungroup()
+
+pre_invertwq = df_invertwq %>%
+  filter(Date <= median(df_invertwq$Date))
+
+## pick latest sampling each site
+df_prem <- pre_invertwq %>% 
+  group_by(site_id) %>% 
+  slice(which.max(Date)) %>% 
+  ungroup()
+
+df_prem = df_prem %>% 
+  dplyr::select(c(Div, pH_SU, Sp_Cond, Temp_C, Diss_Oxy))
+
+
+invertwq_lm = lm(Div~ .,
+                 data = df_prem,
+                 na.action = "na.fail")
+
+invert_dre = dredge(invertwq_lm)
+
+#prediction model#
+
+wq0_lm_mod = lm(get.models(invert_dre, subset = 2)[[1]])
+
+#court 1#
+predict(wq0_lm_mod, newdata = list(Sp_Cond = 114.7867900))
+
+
+#court 2#
+predict(wq0_lm_mod, newdata = list(Sp_Cond = 63.8713740))
+
+#hogan 1#
+predict(wq0_lm_mod, newdata = list(Sp_Cond = 2.1874395))
+
+
+#open 1#
+predict(wq0_lm_mod, newdata = list(Sp_Cond = 25.1004075))
+
+
+#open 2#
+predict(wq0_lm_mod, newdata = list(Sp_Cond = 0.3792475))
+
+#wood 1#
+predict(wq0_lm_mod, newdata = list(Sp_Cond = 86.7074736))
+
+
+#wood 2#
+predict(wq0_lm_mod, newdata = list(Sp_Cond = 83.1498754))
+
+
+
+
+
+# field wetland order all ----------------------------------------------------------
+df_wq = read_csv("data_raw/water_quality.csv")
+
+
+
+
+df_wq = df_wq %>% 
+  filter(EcoRegion == "P",
+         Sp_Cond != 0,
+         pH_SU != 0,
+         Diss_Oxy != 0,
+         Temp_C != 0,
+         Water_Class %in% c("Freshwater emergent wetland", 
+                            "Forested Shrub Wetland",
+                            "Freshwater Forested/Shrub Wetland")) %>% 
+  dplyr::select(Date,
+                Water_Class,
+                Latitude,
+                Longitude,
+                Temp_C,
+                Sp_Cond,
+                pH_SU,
+                Diss_Oxy) %>% 
+  mutate(site_id = paste0(round(Latitude, 4),
+                          round(Longitude, 4)),
+         Date = as.Date(Date, format = "%m/%d/%y"))
+
+## pick orderes with < 10% unknowns in genus
+order_name <- df_table %>% 
+  filter(Order != "UNKNOWN") %>% 
+  drop_na(Order) %>% 
+  pull(Order) %>% 
+  unique()
+
+df_order0 = df_invert %>% 
+  filter(Order %in% order_name) %>% 
+  mutate(site_id = paste0(round(Latitude, 4),
+                          round(Longitude, 4)),
+         Date = as.Date(Date, format = "%m/%d/%y"))
+
+df_order = df_order0 %>% group_by(site_id,
+                                  Date,
+                                  Latitude, 
+                                  Longitude,
+                                  Order) %>% 
+  summarise(Div = diversity(Abundance,
+                            index = "shannon"))
+df_order1 = df_order0 %>% group_by(site_id,
+                                   Date,
+                                   Latitude, 
+                                   Longitude) %>% 
+  summarise(Div = diversity(Abundance,
+                            index = "shannon"))
+
+df_invertwq = df_order %>% 
+  left_join(df_wq,
+            by = c("Date", 
+                   "site_id")) %>% 
+  drop_na(Latitude.y,
+          Longitude.y) %>% 
+  ungroup()## pick orderes with < 10% unknowns in genus
+
+
+df_invertwq1 = df_order1 %>% 
+  left_join(df_wq,
+            by = c("Date", 
+                   "site_id")) %>% 
+  drop_na(Latitude.y,
+          Longitude.y) %>% 
+  ungroup()
+
+
+pre_invertwq = df_invertwq1 %>%
+  filter(Date <= median(df_invertwq$Date))
+
+## pick latest sampling each site
+df_prem <- pre_invertwq %>% 
+  group_by(site_id) %>% 
+  slice(which.max(Date)) %>% 
+  ungroup()
+
+df_prem = df_prem %>% 
+  dplyr::select(c(Div, pH_SU, Sp_Cond, Temp_C, Diss_Oxy))
+
+
+df_odo = filter(df_order, Order == "ODONATA")
+
+df_invertwq = df_odo %>% 
+  left_join(df_wq,
+            by = c("Date", 
+                   "site_id")) %>% 
+  drop_na(Latitude.y,
+          Longitude.y) %>% 
+  ungroup()
+
+pre_invertwq = df_invertwq %>%
+  filter(Date <= median(df_invertwq$Date))
+
+## pick latest sampling each site
+df_prem <- pre_invertwq %>% 
+  group_by(site_id) %>% 
+  slice(which.max(Date)) %>% 
+  ungroup()
+
+df_prem = df_prem %>% 
+  dplyr::select(c(Div, pH_SU, Sp_Cond, Temp_C, Diss_Oxy))
+
+
+#dredge model#
+invertwq_lm = lm(Div~ .,
+                 data = df_prem,
+                 na.action = "na.fail")
+
+invert_dre = dredge(invertwq_lm)
+
+#prediction model#
+
+wq0_lm_mod = lm(get.models(invert_dre, subset = 1)[[1]])
+
+
+
+#court 2#
+predict(wq0_lm_mod, newdata = list(Diss_Oxy = 1.7345979,
+                                   Sp_Cond = 63.8713740))
+
+
+
+
+
+
+
+
+
+#court 1#
+predict(wq0_lm_mod, newdata = list(Diss _Oxy = 1.6769404,
+                                   pH_SU = 6.062605,
+                                   Sp_Cond = 114.7867900,
+                                   Temp_C =12.436543))
+
+
+#court 2#
+predict(wq0_lm_mod, newdata = list(Diss_Oxy = 1.7345979,
+                                   pH_SU = 5.411819,
+                                   Sp_Cond = 63.8713740,
+                                   Temp_C = 10.210372))
+
+#hogan 1#
+predict(wq0_lm_mod, newdata = list(Diss_Oxy = 9.1059193,
+                                   pH_SU = 7.430000,
+                                   Sp_Cond = 2.1874395,
+                                   Temp_C = 14.667306))
+
+
+#hogan 2#
+predict(wq0_lm_mod, newdata = list(Diss _Oxy = 3.9065187,
+                                   pH_SU = 6.050000,
+                                   Sp_Cond = 52.7905044,
+                                   Temp_C = 14.588273))
+#open 1#
+predict(wq0_lm_mod, newdata = list(Diss _Oxy = 10.2247783,
+                                   pH_SU = 7.450000,
+                                   Sp_Cond = 25.1004075,
+                                   Temp_C =14.642833))
+
+
+#open 2#
+predict(wq0_lm_mod, newdata = list(Diss_Oxy = 9.9289024,
+                                   pH_SU = 6.940000,
+                                   Sp_Cond = 0.3792475,
+                                   Temp_C = 22.882342))
+
+#wood 1#
+predict(wq0_lm_mod, newdata = list(Diss _Oxy = 3.2161201,
+                                   pH_SU = 7.390000,
+                                   Sp_Cond = 86.7074736,
+                                   Temp_C =11.233140))
+
+
+#wood 2#
+predict(wq0_lm_mod, newdata = list(Diss_Oxy = 10.2762675,
+                                   pH_SU = 7.180000,
+                                   Sp_Cond = 83.1498754,
+                                   Temp_C = 9.676055))
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
