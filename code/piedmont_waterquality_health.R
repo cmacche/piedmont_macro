@@ -169,7 +169,7 @@ df_postm <- post %>%
  
  
  #dredge model#
- invertwq_lm = lm(genus_richness~ .,
+ invertwq_glm = glm(genus_richness~ .,
                  data = df_prem,
                  na.action = "na.fail")
 
@@ -177,7 +177,7 @@ df_postm <- post %>%
  
 # #prediction model#
 
-wq0_lm_mod = lm(get.models(invert_dre, subset = 1)[[1]])
+wq0_lm_mod = glm(get.models(invert_dre, subset = 1)[[1]])
 
  
 d0 = df_postm %>% dplyr::select(Diss_Oxy, pH_SU, Sp_Cond, Temp_C)
