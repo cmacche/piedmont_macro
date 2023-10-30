@@ -217,7 +217,7 @@ list_pred <- lapply(seq_len(length(taxa)), function(i) {
 
 names(list_pred) <- taxa
 
-
+#correlation test#
 cor.test(list_pred$EPHEMEROPTERA$genus_richness, 
          list_pred$EPHEMEROPTERA$y_hat, 
          method = "spearman", 
@@ -232,6 +232,9 @@ cor.test(list_pred$TRICHOPTERA$genus_richness,
          list_pred$TRICHOPTERA$y_hat, 
          method = "spearman", 
          exact = FALSE)
+
+
+#prediction against observed plots#
 
 ggplot( list_pred$EPHEMEROPTERA, aes(x = y_hat, y = genus_richness)) + 
   labs(y = "Predicted", x = "Observed") +
@@ -250,6 +253,8 @@ ggplot( list_pred$TRICHOPTERA, aes(x = y_hat, y = genus_richness)) +
   labs(title = "Trichoptera Predcited vs. Observed") +
   geom_point() + 
   geom_abline(intercept = 0, slope = 1, color = "hotpink")
+
+#water quality plotting#
 
 
 plot(list_m1$EPHEMEROPTERA)
