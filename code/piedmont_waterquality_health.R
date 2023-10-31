@@ -234,9 +234,9 @@ list_plot <- lapply(list_pred, function(subdf) {
 })
 
 ## uncomment the following to see each plot
-# list_plot[[1]]
-# list_plot[[2]]
-# list_plot[[3]]
+list_plot[[1]]
+list_plot[[2]]
+list_plot[[3]]
 
 ## to save plot PDFs to "output/" sub-directory
 lapply(seq_len(length(list_plot)), function(i) {
@@ -254,6 +254,8 @@ lapply(seq_len(length(list_plot)), function(i) {
 ## pick names of selected variables
 ## [-1] to remove "(Intercept)"
 x_name <- names(list_m1[[1]]$coefficients)[-1]
+
+
 
 df_pre <- df_m %>% 
   filter(period == "pre",
@@ -274,6 +276,51 @@ g_wq <- df_pre %>%
         axis.title.x = element_blank())
 
 ## uncomment to print
-# g_wq
+g_wq
 
 ## TASK - how would you apply lappy() to loop across taxa?
+
+
+list_wq_plot <- lapply(taxa, function(subx) {
+  
+  x_name <- names(list_m1[[subx]]$coefficients)[-1]
+  
+  df_pre <- df_m %>% 
+    filter(period == "pre",
+           Order == subx) %>% 
+    pivot_longer(cols = x_name,
+                 names_to = "x_name",
+                 values_to = "value")
+  
+  g_wq <- df_pre %>% 
+    ggplot(aes(x = value,
+               y = genus_richness)) +
+    facet_wrap(facets = ~x_name,
+               scales = "free",
+               strip.position = "bottom") +
+    geom_point() +
+    theme(strip.placement = "outside",
+          strip.background = element_blank(),
+          axis.title.x = element_blank()) +
+    
+  
+  return(g_wq)
+  
+  
+
+})
+
+names(list_wq_plot) <- taxa
+list_wq_plot$EPHEMEROPTERA
+list_wq_plot$PLECOPTERA
+list_wq_plot$TRICHOPTERA
+
+
+lapply(seq_len(length(list_wq_plot)), function(i) {
+  filename <- paste0("output/fig_", str_to_lower(taxa[i]), ".pdf")
+  ggsave(plot = list_plot[[i]],
+         filename = filename,
+         width = 5,
+         height = 5)
+})
+
