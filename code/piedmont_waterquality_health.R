@@ -276,7 +276,9 @@ list_wq_plot <- lapply(taxa, function(subx) {
     facet_wrap(facets = ~x_name,
                scales = "free",
                strip.position = "bottom",
-               labeller = as_labeller(label)) +
+               labeller = as_labeller(label),
+               nrow = 2,
+               ncol = 2) +
     geom_point() +
     labs(y = "Genus richness") +
     theme_bw() +
@@ -298,7 +300,7 @@ lapply(seq_len(length(list_wq_plot)), function(i) {
   filename <- paste0("output/fig_", str_to_lower(taxa[i]), "_wq", ".pdf")
   ggsave(plot = list_wq_plot[[i]],
          filename = filename,
-         width = 5,
-         height = 5)
+         width = 7,
+         height = 7)
 })
 
