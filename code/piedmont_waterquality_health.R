@@ -296,7 +296,7 @@ list_wq_plot$TRICHOPTERA
 
 lapply(seq_len(length(list_wq_plot)), function(i) {
   filename <- paste0("output/fig_", str_to_lower(taxa[i]), "_wq", ".pdf")
-  ggsave(plot = list_plot[[i]],
+  ggsave(plot = list_wq_plot[[i]],
          filename = filename,
          width = 5,
          height = 5)
